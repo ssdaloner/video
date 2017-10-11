@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 保持一致就是复制粘贴 -->
+<!-- namespace 要和接口名字保持一致 -->
+<mapper namespace="com.zhiyou100.dao.SpeakerDao">
+    <!-- id 要和方法名字保持一致 -->
+    <!-- parameterType 要和方法的参数保持一致 -->
+    <!-- resultType 要和方法的返回值保持一致 -->
+  <!-- 添加 -->
+  <insert id="addSpeaker" parameterType="speaker">
+  
+  insert into speaker (name,descriptor,position,icon) values (#{name},#{descriptor},#{position},#{icon})
+  
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateSpeaker" parameterType="speaker">
+  
+  update speaker as s set s.name=#{name},s.position=#{position},s.icon=#{icon},s.descriptor=#{descriptor} where status=0 and s.id=#{id}
+  
+  </update>
+  
+  <!-- 获取id -->
+  
+  <select id="getspeakerId" parameterType="string" resultType="long">
+  
+  select id from speaker where status=0 and name=#{0}
+  
+  </select>
+  
+  
+  
+  <!-- 删除 --><!-- 
+  <delete id="deleteSpeaker" parameterType="long">
+  
+  delete from video where 
+  
+  id in
+  <foreach collection="ids" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  </delete>
+   -->
+   
+  <!-- 逻辑删除 -->
+  
+  <update id="deleteSpeaker">
+  
+  update speaker set status=1 where id in
+  <foreach collection="list" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  
+  </update>
+ 
+  
+  <!--查询，获取 -->
+  <select id="listSpeaker" parameterType="Integer" resultType="speaker">
+  
+  select s.id,s.name,s.icon,s.position,s.descriptor from speaker as s where s.status=0 limit #{0},5
+  
+  </select>
+  
+  <!-- 获取数据总条数 -->
+  
+  <select id="getCount" resultType="Integer">
+  
+  select count(s.id) from speaker as s where s.status=0
+  
+  </select>
+  
+  <!-- 查询 speaker -->
+  <select id="listSpeakerby" parameterType="speaker" resultType="speaker">
+  
+  select s.name,s.position,s.descriptor <where>
+  
+  <if test="speaker.name!=null">
+  
+  and s.name=#{name}
+  
+  </if>
+  
+  <if test="speaker.position!=null">
+  
+  and s.position=#{position}
+  
+  </if>
+  
+  and status=0
+  
+  </where>
+  
+  </select>
+    
+    
+  <select id="listName" resultType="speaker">
+  
+  select id,name from speaker where status=0
+  
+  </select>  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</mapper>

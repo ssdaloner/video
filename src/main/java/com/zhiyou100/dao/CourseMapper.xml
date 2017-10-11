@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 保持一致就是复制粘贴 -->
+<!-- namespace 要和接口名字保持一致 -->
+<mapper namespace="com.zhiyou100.dao.CourseDao">
+    
+    <!-- 添加 -->
+    
+    <insert id="addCourse" parameterType="course">
+    
+    insert into Course (title,descriptor,subject_id) values(#{title},#{descriptor},#{subjectId})
+    
+    </insert>
+    
+    <!-- 修改 -->
+    <update id="updateCourse" parameterType="course">
+    
+    update course inner join subject on course.id=#{id} and subject.title=#{subjectTitle} set course.title=#{title},course.descriptor=#{descriptor},course.subject_id=subject.id
+    
+    </update>
+    
+    <!-- 获取所有课程 -->
+    <select id="listCourse" parameterType="integer" resultType="course">
+    
+    select c.id,c.title,c.descriptor,s.title as subjectTitle from course as c,subject as s where c.status=0 and s.id=c.subject_id limit #{0},5
+    
+    </select>
+    
+    <!-- 获取总数 -->
+    
+    <select id="getCount" resultType="Integer">
+    
+    select count(c.id) from course as c where status=0
+    
+    </select>
+    
+    <!-- 逻辑删除 -->
+    
+    <update id="deleteCourse">
+    
+    update course set status=1 where id in
+  <foreach collection="list" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  
+  </update> 
+    
+    <!-- 查id -->
+    <select id="getId" parameterType="string" resultType="long">
+    
+    select id from course where title=#{0} and status=0
+    
+    </select>
+   
+   <!-- 查 name -->
+   
+   <select id="listName" resultType="course">
+   
+   select id,title from course where status=0
+   
+   </select>
+   
+   
+   
+   
+    
+</mapper>

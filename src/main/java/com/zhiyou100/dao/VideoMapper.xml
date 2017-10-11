@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 保持一致就是复制粘贴 -->
+<!-- namespace 要和接口名字保持一致 -->
+<mapper namespace="com.zhiyou100.dao.VideoDao">
+    <!-- id 要和方法名字保持一致 -->
+    <!-- parameterType 要和方法的参数保持一致 -->
+    <!-- resultType 要和方法的返回值保持一致 -->
+  <!-- 添加 -->
+  
+  <insert id="addVideo" parameterType="video">
+  
+  insert into video (name,descriptor,course_id,speaker_id,duration,image,url) values (#{name},#{descriptor},#{courseId},#{speakerId},#{duration},#{image},#{url})
+  
+  </insert>
+  
+  
+  <!-- 删除 -->
+  <!--  
+  <delete id="deleteVideo" parameterType="selector">
+  
+  delete from video where <choose>
+  
+  <when test="course==null and speaker==null">
+  
+  id in
+  <foreach collection="ids" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  
+  </when>
+  
+  <when test="ids==null and course!=null and speaker==null">
+  
+  course_id=#{course.id}
+  
+  </when>
+  
+  <when test="ids==null and course==null and speaker!=null">
+  
+  speaker_id=#{speaker.id}
+  
+  </when>
+  
+  
+  </choose>
+  
+  </delete>
+ -->
+  <!-- 逻辑删除 -->
+  <!-- 
+  <update id="deleteVideo" parameterType="selector">
+  
+  update video set status=1 where <choose>
+  
+  <when test="course==null and speaker==null">
+  
+  id in
+  <foreach collection="ids" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  
+  </when>
+  
+  <when test="ids==null and course!=null and speaker==null">
+  
+  course_id=#{course.id}
+  
+  </when>
+  
+  <when test="ids==null and course==null and speaker!=null">
+  
+  speaker_id=#{speaker.id}
+  
+  </when>
+  
+  
+  </choose>
+  
+  set status=1
+  
+  
+  </update>
+   -->
+  <update id="deleteVideo">
+  update video set status=1 where id in
+  
+  <foreach collection="ids" item="id" open="(" separator="," close=")">
+  
+  #{id}
+  
+  </foreach>
+  
+  
+  </update>
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--查询，获取 -->
+  <!--  
+  <select id="listVideo" parameterType="integer" resultType="video">
+  
+  select v.id,v.name,v.descriptor,v.duration,v.videoview,s.name as speakerName from video as v,speaker as s where v.status=0 and s.status=0 and
+  
+  s.id=v.speaker_id limit #{pageIndex},5
+  
+  </select>
+  -->
+  <select id="listVideo" parameterType="integer" resultType="video">
+  
+  select v.*,s.name as speakerName,c.title as courseTitle from video as v,speaker as s,course as c 
+  
+  where s.status=0 and v.status=0 and c.status=0 and s.id=v.speaker_id and c.id=v.course_id
+  
+  limit #{pageIndex},5
+  
+  </select>
+  
+  
+  
+  
+  
+  
+  <!-- 获取数据总条数 -->
+  
+  <select id="getCount" resultType="Integer">
+  
+  select count(v.id) as pageCount from video as v where v.status=0
+  
+  </select>
+  <!-- 条件查询 -->
+  
+  <select id="listVideoby" parameterType="selector" resultType="video">
+  
+  select v.id,v.name,v.descriptor,v.duration,v.videoview,s.name as speakerName from video as v
+  
+  <if test="speakername!=null">
+  
+  ,speaker as s
+  </if>
+  <if test="coursetitle!=null">
+  
+  ,course as c 
+  </if>
+  <where>
+  <if test="speakername!=null">
+  
+  and s.name=#{speakername} and v.speaker_id=s.id
+  
+  </if>
+  
+  <if test="coursetitle!=null">
+  
+  and c.title=#{coursetitle} and v.course_id=c.id
+  </if>
+  
+  <if test="videoname!=null">
+  
+  and v.name like '%${videoname}%'
+  
+  </if>
+  and s.status=0 and c.status=0
+  </where>
+    
+  </select>
+  
+  <select id="searchbyid" parameterType="com.zhiyou100.model.AllIds" resultType="video">
+  
+  select v.id as id, v.name, v.descriptor, v.duration , v.videoview, v.image, v.url, s.name as speakerName,c.title as courseTitle from video as v,speaker as s,course as c 
+  
+  <where>
+  <if test="speakerId!=null and speakerId !=0">
+  
+  and s.id=#{speakerId}
+  
+  </if>
+  <if test="courseId!=0 and courseId!=null">
+  
+  and c.id=#{courseId}
+  
+  </if>
+  
+  <if test="videoTitle!=null and videoTitle!=''">
+  
+  and v.name like '%${videoTitle}%'
+  
+  </if>
+  
+  and s.status=0 and v.status=0 and c.status=0 and s.id=v.speaker_id and c.id=v.course_id
+  
+  </where>
+  
+  </select>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!-- 条件查询总条数 -->
+  <select id="getCountby" parameterType="selector" resultType="Integer">
+  
+  select count(*) from video as v,speaker as s,course as c 
+  
+  <where>
+  <if test="speakername!=null">
+  
+  and s.name=#{speakername} and v.speaker_id=s.id
+  
+  </if>
+  
+  <if test="coursetitle!=null">
+  
+  and c.title=#{coursetitle} and v.course_id=c.id
+  </if>
+  
+  <if test="videoname!=null">
+  
+  and v.name like #{videoname}
+  
+  </if>
+  </where>
+    
+  </select>
+    <!-- 修改 -->
+    <update id="updateVideo" parameterType="video">
+    
+    update video as v set v.name=#{name},v.speaker_id=#{speakerId},v.course_id=#{courseId},v.image=#{image},v.url=#{url},v.duration=#{duration},v.descriptor=#{descriptor} where status=0 and v.id=#{id}
+    
+    </update>
+    
+    
+    
+</mapper>
